@@ -1,0 +1,23 @@
+version: "3"
+
+services:
+    conversando_db:
+        image: postgres:11.1
+        environment:
+            - "POSTGRES_DB=phrases"
+        volumes:
+            - ./db-data:/var/lib/postgresql/data
+        ports:
+            - "5432:5432"
+
+    conversando_server:
+        # image: conversando/conversando_server:latest
+        build: .
+        volumes:
+            - ./data-static:/conversando-server/static
+        depends_on:
+            - conversando_db
+        command: bash -c "/myvenv/bin/python manage.py collectstatic --noinput && /myvenv/bin/gunicorn conversando.wsgi -b 0.0.0.0:8000"
+        ports:
+            - "8000:8000"
+
